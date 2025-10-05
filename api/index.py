@@ -6,7 +6,7 @@ import os
 
 app = FastAPI()
 
-# Enable CORS for all origins (for POST requests from any dashboard)
+# ✅ Enable CORS for POST requests from any origin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,14 +14,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load telemetry data once at cold start (serverless best practice)
+# ✅ Load telemetry data once (efficient for serverless)
 DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "q-vercel-latency.json")
 with open(DATA_PATH, "r") as f:
     TELEMETRY = json.load(f)
 
+# ✅ GET route (browser-friendly)
+@app.get("/")
+def root():
+    return {
+        "message": "✅ FastAPI serverless endpoint is live on Vercel!",
+        "usage": "Send a POST request with JSON body {\"regions\": [...], \"threshold_ms\": N}."
+    }
+
+# ✅ POST route (main logic)
 @app.post("/")
 async def region_metrics(request: Request):
-    """Compute average latency, p95 latency, uptime, and breach counts."""
+    """
+    Accepts: {"regions": ["emea", "apac"], "threshold_ms": 180}
+    Returns: per-region metrics (avg_latency, p95_latency, avg_uptime, breaches)
+    """
     body = await request.json()
     regions = body.get("regions", [])
     threshold = body.get("threshold_ms", 180)
