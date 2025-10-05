@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Latency Dashboard</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #fafafa;
+      color: #333;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+    }
+    input, button {
+      padding: 0.5rem;
+      margin: 0.25rem 0;
+      width: 100%;
+      font-size: 1rem;
+    }
+    pre {
+      background: #eee;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌍 Latency Metrics Dashboard</h1>
+  <p>Enter regions (comma-separated):</p>
+  <input id="regions" type="text" placeholder="e.g. emea,apac">
+  <p>Enter threshold (ms):</p>
+  <input id="threshold" type="number" value="180">
+  <button id="checkBtn">Check Metrics</button>
+
+  <h2>Results:</h2>
+  <pre id="output">{}</pre>
+
+  <script>
+    const endpoint = "https://your-vercel-project-name.vercel.app/";
+
+    document.getElementById("checkBtn").addEventListener("click", async () => {
+      const regions = document.getElementById("regions").value.split(",").map(r => r.trim()).filter(Boolean);
+      const threshold = parseFloat(document.getElementById("threshold").value);
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ regions, threshold_ms: threshold })
+      });
+
+      const data = await res.json();
+      document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+    });
+  </script>
+</body>
+</html>
